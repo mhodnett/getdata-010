@@ -1,7 +1,7 @@
 
 #
 # Course project for Getting and Cleaning Data course on coursera.ord
-# Author: Mark Hodnett (https://github.com/mhodnett/)
+# Author: Mark Hodnett (https://github.com/mhodnett/getdata-010)
 # Date: 22/01/2015
 
 # Instructions
@@ -12,9 +12,7 @@
 #    From the data set in step 4, creates a second, independent tidy data set with the average of each variable for each activity and each subject.
 #
 
-
-setwd("C:\\mydata\\learning\\ds\\GettingandCleaningData\\proj")
-
+library(dplyr)
 
 # import data
 dfIn_train<-read.table("UCI HAR Dataset\\train\\X_train.txt", header = FALSE)
@@ -57,34 +55,15 @@ df_test<-cbind(dfIn_test,dfIn_subtest,dfIn_testY)
 # create dataset by combining test and train datasets
 df_ALL<-rbind(df_train,df_test)
 
-rows<-grep("_std_|_mean_",colnames(df_ALL))
-rows<-c(rows,grep("Subject|ActivityId",colnames(df_ALL)))
-fin<-merge(df_ALL[,rows], dfIn_labels, by.x = "ActivityId", by.y = "ActivityId", sort = FALSE) 
-head(fin)
-
-head(df_ALL[,rows])
-
-############################
-
-dim(dfIn_features)
-head(dfIn_features)
-
-dim(df_train)
-dim(df_test)
-dim(df_ALL)
-head(df_train)
-head(df_test)
+# get the columns
+cols<-grep("_std_|_mean_",colnames(df_ALL))
+cols<-c(cols,grep("Subject|ActivityId",colnames(df_ALL)))
+fin<-merge(df_ALL[,cols], dfIn_labels, by.x = "ActivityId", by.y = "ActivityId", sort = FALSE) 
+fin$ActivityId<-NULL
+res<-fin %>% 
+  group_by(Subject,Activity) %>% 
+  summarise_each(funs(mean))
 
 
+write.table(res,"result.txt",row.names=FALSE)
 
-dim(df_train)
-dim(dfIn_train)
-dim(dfIn_subtrain)
-dim(dfIn_trainY)
-
-dim(dfIn_test)
-dim(dfIn_subtest)
-dim(dfIn_testY)
-
-dim(dfIn_features)
-head(dfIn_features)
